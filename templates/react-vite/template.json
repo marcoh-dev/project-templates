@@ -12,11 +12,14 @@
 		"eslint-plugin-react-hooks",
 		"eslint-plugin-react-refresh",
 		"eslint-plugin-import",
+		"eslint-plugin-jsx-a11y",
 		"eslint-config-prettier",
 		"prettier"
 	],
 	"package": {
-		"engines": { "node": "24.x" },
+		"engines": {
+			"node": "24.x"
+		},
 		"scripts": {
 			"lint": "eslint .",
 			"lint:fix": "eslint . --fix",

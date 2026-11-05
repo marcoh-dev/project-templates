@@ -5,10 +5,13 @@
 		"prettier",
 		"eslint-config-prettier",
 		"prettier-plugin-tailwindcss",
-		"@types/node@^24"
+		"@types/node@^24",
+		"eslint-plugin-jsx-a11y"
 	],
 	"package": {
-		"engines": { "node": "24.x" },
+		"engines": {
+			"node": "24.x"
+		},
 		"scripts": {
 			"lint": "eslint",
 			"lint:fix": "eslint --fix",

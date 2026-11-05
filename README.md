@@ -80,7 +80,22 @@ Rules in every stack:
 - TypeScript `strict` and `noUncheckedIndexedAccess`; `verbatimModuleSyntax` everywhere except `nest`
 - VS Code: Prettier formats on save, ESLint fixes on save, auto-imports prefer `@/…`
 - Node 24 via `.nvmrc` and `engines`
+- Accessibility lint rules in `nextjs` and `react-vite` (see [Accessibility](#accessibility))
 - GitHub Actions CI (see below)
+
+## Accessibility
+
+Lint rules only catch structural mistakes. Contrast, screen reader flow, focus order and touch target sizes need tests or manual checks.
+
+| Stack                                          | Lint                                                                                                 | Beyond lint                                                                                                                              |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `nextjs`, `react-vite`, `fullstack` (frontend) | `eslint-plugin-jsx-a11y` recommended rules as errors: alt text, labels, keyboard support, valid ARIA | Once there are real pages: `axe-core` via `vitest-axe` or Playwright, also in CI                                                         |
+| `expo`                                         | None                                                                                                 | VoiceOver / TalkBack by hand; React Native Testing Library queries by role and label, e.g. `getByRole("button", { name: "Close menu" })` |
+| `nest`                                         | Not applicable (API)                                                                                 |                                                                                                                                          |
+
+`expo` has no accessibility lint plugin: `eslint-plugin-react-native-a11y` only supports ESLint up to 8 and hasn't had a release since November 2024 (its ESLint 9 pull request is still open).
+
+For React Native, set `accessibilityRole` and `accessibilityLabel` on icon-only buttons, `accessibilityRole="header"` on titles, `accessibilityLabel` on text inputs, and give small touch targets a `hitSlop` so they reach about 44 points.
 
 ## CI
 
