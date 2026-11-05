@@ -12,11 +12,15 @@ The templates don't contain whole projects. Each project is created with the off
 | `nextjs`     | `create-next-app` (App Router, Tailwind, React Compiler, `src/`) | Tailwind class sorting via Prettier plugin       |
 | `react-vite` | `create-vite` (react-ts)                                         | oxlint replaced with ESLint                      |
 | `nest`       | `@nestjs/cli new` (ESM, Vitest)                                  | oxlint replaced with ESLint (type-checked rules) |
+| `fullstack`  | `nextjs` in `frontend/` + `nest` in `backend/` as npm workspaces | Postgres (Docker), TypeORM, GitHub Actions CI    |
+
+`fullstack` is set up like food-swap: one `npm install` and `npm run dev` at the root start the database, the backend (port 3000) and the frontend (port 5173). The generated project has its own README with all commands.
 
 ## Requirements
 
 - Node 24 (`nvm use 24`)
 - GitHub CLI logged in (`gh auth status`), as long as this repo is private
+- Docker, for `fullstack`
 
 ## Usage
 
@@ -35,6 +39,7 @@ node ~/project-templates/scripts/new.mjs expo my-app
 node ~/project-templates/scripts/new.mjs nextjs my-site
 node ~/project-templates/scripts/new.mjs react-vite my-spa
 node ~/project-templates/scripts/new.mjs nest my-api
+node ~/project-templates/scripts/new.mjs fullstack my-platform
 ```
 
 Apply a stack's setup to an existing project (overwrites the config files listed under [What gets applied](#what-gets-applied), so commit first):
@@ -42,6 +47,8 @@ Apply a stack's setup to an existing project (overwrites the config files listed
 ```bash
 node ~/project-templates/scripts/apply.mjs <stack> [projectDir]
 ```
+
+Both scripts take `--no-ci` to leave out the GitHub Actions workflow (see [CI](#ci)).
 
 With Claude Code, use the skills instead: `/new-project <stack> <name>` and `/setup-tooling` (proposes the changes first, keeps existing customizations).
 
@@ -73,6 +80,36 @@ Rules in every stack:
 - TypeScript `strict` and `noUncheckedIndexedAccess`; `verbatimModuleSyntax` everywhere except `nest`
 - VS Code: Prettier formats on save, ESLint fixes on save, auto-imports prefer `@/…`
 - Node 24 via `.nvmrc` and `engines`
+- GitHub Actions CI (see below)
+
+## CI
+
+Every stack includes `.github/workflows/ci.yml`. It runs on pushes and pull requests to `main` with Node from `.nvmrc`, `npm ci`, and then:
+
+| Stack        | Steps                                                                   |
+| ------------ | ----------------------------------------------------------------------- |
+| `expo`       | `check` (builds go through EAS)                                         |
+| `nextjs`     | `check`, `build`                                                        |
+| `react-vite` | `check`, `build`                                                        |
+| `nest`       | `check`, `test`, `test:e2e`, `build`                                    |
+| `fullstack`  | `check`, `test`, backend `test:e2e` against a Postgres service, `build` |
+
+GitHub only runs workflows from `.github/` at the repository root. When the target is inside an existing git repo but not its root (e.g. a challenge inside a monorepo), the scripts skip CI automatically.
+
+Leave it out when creating or applying:
+
+```bash
+node ~/project-templates/scripts/new.mjs <stack> <name> --no-ci
+node ~/project-templates/scripts/apply.mjs <stack> [projectDir] --no-ci
+```
+
+Remove it from an existing project:
+
+```bash
+rm .github/workflows/ci.yml
+```
+
+`.github/` can be deleted too if there's nothing else in it.
 
 ## What gets applied
 
@@ -80,8 +117,11 @@ Rules in every stack:
 2. Files in `templates/<stack>/files/` (overwrite `shared/` and generated files)
 3. `templates/<stack>/template.json`:
     - `create`: command that generates the project (`{name}` is replaced)
+    - `workspaces`: instead of `create`, builds each folder from another stack (`{ "backend": "nest" }`) and applies this template at the root
+    - `workspaceDependencies`, `workspacePackage`: packages and `package.json` changes per workspace
+    - `copyFiles`: files copied once if the target doesn't exist (e.g. `.env.example` → `.env`)
     - `removeFiles`, `removeDependencies`: generated things that are not wanted
-    - `replace`: text replacements in generated files
+    - `replace`: text replacements in generated files (`{name}` in `to` becomes the project folder name)
     - `devDependencies`, `installCommand`: packages to install
     - `moveToDevDependencies`: packages the install command put into `dependencies`
     - `package`: merged into `package.json` (scripts, engines, …)

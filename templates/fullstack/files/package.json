@@ -1,0 +1,24 @@
+{
+	"name": "PROJECT_NAME",
+	"private": true,
+	"workspaces": [
+		"backend",
+		"frontend"
+	],
+	"engines": {
+		"node": "24.x"
+	},
+	"scripts": {
+		"dev": "npm run db:up && concurrently -n backend,frontend -c blue,magenta \"npm run start:dev -w backend\" \"npm run dev -w frontend\"",
+		"db:up": "docker compose up -d --wait",
+		"db:down": "docker compose down",
+		"lint": "npm run lint --workspaces",
+		"lint:fix": "npm run lint:fix --workspaces",
+		"format": "prettier --write . && npm run format --workspaces",
+		"format:check": "prettier --check . && npm run format:check --workspaces",
+		"typecheck": "npm run typecheck --workspaces",
+		"test": "npm run test --workspaces --if-present",
+		"build": "npm run build --workspaces",
+		"check": "npm run lint && npm run format:check && npm run typecheck"
+	}
+}

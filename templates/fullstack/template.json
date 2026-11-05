@@ -1,0 +1,60 @@
+{
+	"description": "npm workspaces with Next.js frontend, NestJS backend, Postgres via Docker and GitHub Actions CI",
+	"workspaces": {
+		"backend": "nest",
+		"frontend": "nextjs"
+	},
+	"replace": [
+		{
+			"file": "package.json",
+			"from": "PROJECT_NAME",
+			"to": "{name}"
+		},
+		{
+			"file": "docker-compose.yml",
+			"from": "PROJECT_NAME",
+			"to": "{name}"
+		},
+		{
+			"file": ".github/workflows/ci.yml",
+			"from": "PROJECT_NAME",
+			"to": "{name}"
+		},
+		{
+			"file": "backend/.env.example",
+			"from": "PROJECT_NAME",
+			"to": "{name}"
+		},
+		{
+			"file": "README.md",
+			"from": "PROJECT_NAME",
+			"to": "{name}"
+		}
+	],
+	"copyFiles": [
+		["backend/.env.example", "backend/.env"],
+		["frontend/.env.example", "frontend/.env.local"]
+	],
+	"devDependencies": ["concurrently", "prettier"],
+	"workspaceDependencies": {
+		"backend": ["@nestjs/config", "@nestjs/typeorm", "typeorm", "pg"]
+	},
+	"workspacePackage": {
+		"frontend": {
+			"scripts": {
+				"dev": "next dev -p 5173",
+				"start": "next start -p 5173"
+			}
+		},
+		"backend": {
+			"scripts": {
+				"migration:create": "typeorm migration:create",
+				"migration:generate": "npm run build && typeorm migration:generate -d dist/data-source.js",
+				"postmigration:generate": "eslint --fix src/migrations && prettier --write src/migrations",
+				"migration:run": "npm run build && typeorm migration:run -d dist/data-source.js",
+				"migration:revert": "npm run build && typeorm migration:revert -d dist/data-source.js",
+				"migration:show": "npm run build && typeorm migration:show -d dist/data-source.js"
+			}
+		}
+	}
+}

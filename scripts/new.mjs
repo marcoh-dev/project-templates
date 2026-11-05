@@ -1,23 +1,21 @@
-import { execSync } from "node:child_process";
-import { existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { create, gitRoot, listStacks } from "./apply.mjs";
 
-import { apply, listStacks, loadTemplate } from "./apply.mjs";
-
-const [stack, name] = process.argv.slice(2);
+const args = process.argv.slice(2);
+const noCi = args.includes("--no-ci");
+const [stack, name] = args.filter((arg) => !arg.startsWith("--"));
 if (!stack || !name) {
-	console.log(`Usage: node scripts/new.mjs <stack> <name>\nStacks: ${listStacks().join(", ")}`);
-	process.exit(1);
-}
-if (existsSync(resolve(name))) {
-	console.error(`${resolve(name)} already exists`);
+	console.log(
+		`Usage: node scripts/new.mjs <stack> <name> [--no-ci]\nStacks: ${listStacks().join(", ")}`,
+	);
 	process.exit(1);
 }
 
-const { config } = loadTemplate(stack);
-const command = config.create.replaceAll("{name}", name);
-console.log(`$ ${command}`);
-execSync(command, { stdio: "inherit" });
+let ci = !noCi;
+if (ci && gitRoot(process.cwd())) {
+	console.log(
+		"Inside an existing git repo: GitHub only runs workflows from the repo root, skipping CI.",
+	);
+	ci = false;
+}
 
-apply(stack, name);
-console.log(`\nDone: ${resolve(name)}`);
+console.log(`\nDone: ${create(stack, name, { ci })}`);
