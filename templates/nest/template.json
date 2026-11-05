@@ -1,0 +1,27 @@
+{
+	"description": "NestJS API (ESM) with TypeScript and Vitest",
+	"create": "npx -y @nestjs/cli@latest new {name} --package-manager npm --strict",
+	"removeFiles": [".oxlintrc.json"],
+	"removeDependencies": ["oxlint", "oxlint-tsgolint"],
+	"replace": [{ "file": "test/app.e2e-spec.ts", "from": "./../src/", "to": "@/" }],
+	"devDependencies": [
+		"eslint@^9",
+		"@eslint/js@^9",
+		"typescript-eslint",
+		"globals",
+		"eslint-plugin-import",
+		"eslint-config-prettier",
+		"prettier"
+	],
+	"package": {
+		"engines": { "node": "24.x" },
+		"scripts": {
+			"lint": "eslint .",
+			"lint:fix": "eslint . --fix",
+			"format": "prettier --write .",
+			"format:check": "prettier --check .",
+			"typecheck": "tsc --noEmit",
+			"check": "npm run lint && npm run format:check && npm run typecheck"
+		}
+	}
+}

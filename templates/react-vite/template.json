@@ -1,0 +1,29 @@
+{
+	"description": "React single-page app with Vite and TypeScript",
+	"create": "npm create -y vite@latest {name} -- --template react-ts --no-interactive && cd {name} && npm install",
+	"removeFiles": [".oxlintrc.json"],
+	"removeDependencies": ["oxlint"],
+	"devDependencies": [
+		"typescript@~6.0.3",
+		"eslint@^9",
+		"@eslint/js@^9",
+		"typescript-eslint",
+		"globals",
+		"eslint-plugin-react-hooks",
+		"eslint-plugin-react-refresh",
+		"eslint-plugin-import",
+		"eslint-config-prettier",
+		"prettier"
+	],
+	"package": {
+		"engines": { "node": "24.x" },
+		"scripts": {
+			"lint": "eslint .",
+			"lint:fix": "eslint . --fix",
+			"format": "prettier --write .",
+			"format:check": "prettier --check .",
+			"typecheck": "tsc -b",
+			"check": "npm run lint && npm run format:check && npm run typecheck"
+		}
+	}
+}

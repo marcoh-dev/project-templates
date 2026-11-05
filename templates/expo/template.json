@@ -1,0 +1,20 @@
+{
+	"description": "Expo (React Native) app with TypeScript, code in src/",
+	"create": "npx create-expo-app@latest {name} --template blank-typescript",
+	"removeFiles": ["App.tsx", "index.ts"],
+	"devDependencies": ["eslint", "eslint-config-expo", "prettier", "eslint-config-prettier"],
+	"installCommand": "npx expo install {packages} -- --save-dev",
+	"moveToDevDependencies": ["eslint", "eslint-config-expo", "prettier", "eslint-config-prettier"],
+	"package": {
+		"main": "src/index.ts",
+		"engines": { "node": "24.x" },
+		"scripts": {
+			"lint": "expo lint",
+			"lint:fix": "expo lint --fix",
+			"format": "prettier --write .",
+			"format:check": "prettier --check .",
+			"typecheck": "tsc --noEmit",
+			"check": "npm run lint && npm run format:check && npm run typecheck"
+		}
+	}
+}
