@@ -73,7 +73,7 @@ npm run sync          # switch to main, pull, install dependencies if package-lo
 npm run sync:branch   # merge main into the current branch (without committing), install if needed
 ```
 
-`sync` runs `npm ci` only when `package-lock.json` changed since the last install (`scripts/install-if-changed.mjs` keeps a hash in `node_modules`). In `fullstack` it also starts the database and runs pending migrations. `sync:branch` prepares the merge but doesn't commit it, so you can check it first (`git merge --abort` undoes it). After a reinstall in VS Code, run **Developer: Reload Window** so the TypeScript and ESLint servers pick up the new `node_modules`.
+`sync` runs `npm ci` only when `package-lock.json` changed since the last install (`scripts/install-if-changed.mjs` keeps a hash in `node_modules`). In `fullstack` it also starts the database and runs pending migrations, and `npm run db:reset` recreates the local database from scratch. `sync:branch` prepares the merge but doesn't commit it, so you can check it first (`git merge --abort` undoes it). After a reinstall in VS Code, run **Developer: Reload Window** so the TypeScript and ESLint servers pick up the new `node_modules`.
 
 Rules in every stack:
 

@@ -12,6 +12,7 @@
 		"dev": "npm run db:up && concurrently -n backend,frontend -c blue,magenta \"npm run start:dev -w backend\" \"npm run dev -w frontend\"",
 		"db:up": "docker compose up -d --wait",
 		"db:down": "docker compose down",
+		"db:reset": "docker compose down -v && npm run db:up && npm run migration:run -w backend",
 		"lint": "npm run lint --workspaces",
 		"lint:fix": "npm run lint:fix --workspaces",
 		"format": "prettier --write . && npm run format --workspaces",
