@@ -67,7 +67,7 @@ npm run lint          # ESLint
 npm run lint:fix      # ESLint with auto-fix
 npm run format        # Prettier, write
 npm run format:check  # Prettier, check only
-npm run typecheck     # tsc
+npm run typecheck     # tsc (Next.js generates its types first with next typegen)
 npm run check         # lint + format:check + typecheck
 ```
 
