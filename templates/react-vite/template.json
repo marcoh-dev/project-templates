@@ -14,7 +14,13 @@
 		"eslint-plugin-import",
 		"eslint-plugin-jsx-a11y",
 		"eslint-config-prettier",
-		"prettier"
+		"prettier",
+		"vitest",
+		"jsdom",
+		"@testing-library/react",
+		"@testing-library/dom",
+		"@testing-library/jest-dom",
+		"@testing-library/user-event"
 	],
 	"package": {
 		"engines": {
@@ -27,6 +33,8 @@
 			"format:check": "prettier --check .",
 			"typecheck": "tsc -b",
 			"check": "npm run lint && npm run format:check && npm run typecheck",
+			"test": "vitest run --passWithNoTests",
+			"test:watch": "vitest",
 			"sync": "git switch main && git pull && node scripts/install-if-changed.mjs",
 			"sync:branch": "git fetch origin && git merge --no-commit origin/main && node scripts/install-if-changed.mjs"
 		}

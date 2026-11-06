@@ -10,7 +10,7 @@ The templates don't contain whole projects. Each project is created with the off
 | ------------ | ---------------------------------------------------------------- | ------------------------------------------------ |
 | `expo`       | `create-expo-app` (blank-typescript), code moved to `src/`       | ESLint via `expo lint`                           |
 | `nextjs`     | `create-next-app` (App Router, Tailwind, React Compiler, `src/`) | Tailwind class sorting via Prettier plugin       |
-| `react-vite` | `create-vite` (react-ts)                                         | oxlint replaced with ESLint                      |
+| `react-vite` | `create-vite` (react-ts)                                         | oxlint replaced with ESLint, Vitest added        |
 | `nest`       | `@nestjs/cli new` (ESM, Vitest)                                  | oxlint replaced with ESLint (type-checked rules) |
 | `fullstack`  | `nextjs` in `frontend/` + `nest` in `backend/` as npm workspaces | Postgres (Docker), TypeORM, GitHub Actions CI    |
 
@@ -109,7 +109,7 @@ Every stack includes `.github/workflows/ci.yml`. It runs on pushes and pull requ
 | ------------ | ----------------------------------------------------------------------- |
 | `expo`       | `check` (builds go through EAS)                                         |
 | `nextjs`     | `check`, `build`                                                        |
-| `react-vite` | `check`, `build`                                                        |
+| `react-vite` | `check`, `test`, `build`                                                |
 | `nest`       | `check`, `test`, `test:e2e`, `build`                                    |
 | `fullstack`  | `check`, `test`, backend `test:e2e` against a Postgres service, `build` |
 
