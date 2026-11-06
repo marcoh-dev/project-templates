@@ -69,7 +69,11 @@ npm run format        # Prettier, write
 npm run format:check  # Prettier, check only
 npm run typecheck     # tsc (Next.js generates its types first with next typegen)
 npm run check         # lint + format:check + typecheck
+npm run sync          # switch to main, pull, install dependencies if package-lock.json changed
+npm run sync:branch   # merge main into the current branch (without committing), install if needed
 ```
+
+`sync` runs `npm ci` only when `package-lock.json` changed since the last install (`scripts/install-if-changed.mjs` keeps a hash in `node_modules`). In `fullstack` it also starts the database and runs pending migrations. `sync:branch` prepares the merge but doesn't commit it, so you can check it first (`git merge --abort` undoes it). After a reinstall in VS Code, run **Developer: Reload Window** so the TypeScript and ESLint servers pick up the new `node_modules`.
 
 Rules in every stack:
 
@@ -128,7 +132,7 @@ rm .github/workflows/ci.yml
 
 ## What gets applied
 
-1. Files in `shared/` (`.prettierrc`, `.nvmrc`, `.vscode/`)
+1. Files in `shared/` (`.prettierrc`, `.nvmrc`, `.vscode/`, `scripts/install-if-changed.mjs`)
 2. Files in `templates/<stack>/files/` (overwrite `shared/` and generated files)
 3. `templates/<stack>/template.json`:
     - `create`: command that generates the project (`{name}` is replaced)

@@ -19,6 +19,8 @@
 		"typecheck": "npm run typecheck --workspaces",
 		"test": "npm run test --workspaces --if-present",
 		"build": "npm run build --workspaces",
-		"check": "npm run lint && npm run format:check && npm run typecheck"
+		"check": "npm run lint && npm run format:check && npm run typecheck",
+		"sync": "git switch main && git pull && node scripts/install-if-changed.mjs && npm run db:up && npm run migration:run -w backend",
+		"sync:branch": "git fetch origin && git merge --no-commit origin/main && node scripts/install-if-changed.mjs && npm run db:up && npm run migration:run -w backend"
 	}
 }

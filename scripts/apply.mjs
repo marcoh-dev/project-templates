@@ -82,9 +82,21 @@ export function create(stack, name, { cwd = process.cwd(), ci = true } = {}) {
 		for (const [workspace, workspaceStack] of Object.entries(config.workspaces)) {
 			create(workspaceStack, workspace, { cwd: target, ci: false });
 			rmSync(join(target, workspace, ".github"), { recursive: true, force: true });
-			for (const file of [".git", ".vscode", ".nvmrc", "package-lock.json", "node_modules"]) {
+			for (const file of [
+				".git",
+				".vscode",
+				".nvmrc",
+				"scripts",
+				"package-lock.json",
+				"node_modules",
+			]) {
 				rmSync(join(target, workspace, file), { recursive: true, force: true });
 			}
+			const workspacePkgPath = join(target, workspace, "package.json");
+			const workspacePkg = readJson(workspacePkgPath);
+			delete workspacePkg.scripts.sync;
+			delete workspacePkg.scripts["sync:branch"];
+			writeJson(workspacePkgPath, workspacePkg);
 		}
 	} else {
 		run(config.create.replaceAll("{name}", name), cwd);
