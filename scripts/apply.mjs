@@ -86,8 +86,8 @@ export function create(stack, name, { cwd = process.cwd(), ci = true } = {}) {
 				".git",
 				".vscode",
 				".nvmrc",
-				"scripts",
-				"package-lock.json",
+				"pnpm-lock.yaml",
+				"pnpm-workspace.yaml",
 				"node_modules",
 			]) {
 				rmSync(join(target, workspace, file), { recursive: true, force: true });
@@ -96,6 +96,8 @@ export function create(stack, name, { cwd = process.cwd(), ci = true } = {}) {
 			const workspacePkg = readJson(workspacePkgPath);
 			delete workspacePkg.scripts.sync;
 			delete workspacePkg.scripts["sync:branch"];
+			delete workspacePkg.packageManager;
+			delete workspacePkg.devEngines;
 			writeJson(workspacePkgPath, workspacePkg);
 		}
 	} else {
@@ -113,6 +115,21 @@ export function apply(stack, projectDir, { ci = true } = {}) {
 
 	for (const file of config.removeFiles ?? []) {
 		rmSync(join(project, file), { recursive: true, force: true });
+	}
+
+	if (existsSync(join(project, "package-lock.json"))) {
+		run("pnpm import", project);
+		for (const file of [
+			"package-lock.json",
+			"node_modules",
+			"scripts/install-if-changed.mjs",
+		]) {
+			rmSync(join(project, file), { recursive: true, force: true });
+		}
+		const scriptsDir = join(project, "scripts");
+		if (existsSync(scriptsDir) && readdirSync(scriptsDir).length === 0) {
+			rmSync(scriptsDir, { recursive: true });
+		}
 	}
 
 	if (config.shared !== false) cpSync(join(root, "shared"), project, { recursive: true });
@@ -137,6 +154,11 @@ export function apply(stack, projectDir, { ci = true } = {}) {
 		delete pkg.devDependencies?.[dependency];
 	}
 	merge(pkg, config.package ?? {});
+	const pnpmVersion = execSync("pnpm --version").toString().trim();
+	pkg.packageManager = `pnpm@${pnpmVersion}`;
+	pkg.devEngines = {
+		packageManager: { name: "pnpm", version: `^${pnpmVersion}`, onFail: "download" },
+	};
 	writeJson(pkgPath, pkg);
 
 	for (const [workspace, values] of Object.entries(config.workspacePackage ?? {})) {
@@ -145,25 +167,25 @@ export function apply(stack, projectDir, { ci = true } = {}) {
 	}
 
 	const devDeps = (config.devDependencies ?? []).join(" ");
-	const install = config.installCommand ?? "npm install --save-dev {packages}";
-	run(devDeps ? install.replace("{packages}", devDeps) : "npm install", project);
+	const install = config.installCommand ?? "pnpm add --save-dev {packages}";
+	run(devDeps ? install.replace("{packages}", devDeps) : "pnpm install", project);
 
 	for (const [workspace, packages] of Object.entries(config.workspaceDependencies ?? {})) {
-		run(`npm install ${packages.join(" ")} -w ${workspace}`, project);
+		run(`pnpm add ${packages.join(" ")} --filter ${workspace}`, project);
 	}
 
 	if (config.moveToDevDependencies) {
 		sortDevDependencies(pkgPath, config.moveToDevDependencies);
-		run("npm install", project);
+		run("pnpm install", project);
 	}
 
 	for (const [from, to] of config.copyFiles ?? []) {
 		if (!existsSync(join(project, to))) copyFileSync(join(project, from), join(project, to));
 	}
 
-	run("npm run lint:fix", project);
-	run("npm run format", project);
-	run("npm run check", project);
+	run("pnpm lint:fix", project);
+	run("pnpm format", project);
+	run("pnpm check", project);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

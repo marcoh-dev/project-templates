@@ -27,13 +27,14 @@ jobs:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/PROJECT_NAME
       NEXT_PUBLIC_API_URL: http://localhost:3000
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci
-      - run: npm run check
-      - run: npm test
-      - run: npm run test:e2e -w backend
-      - run: npm run build
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - run: pnpm test
+      - run: pnpm --filter backend test:e2e
+      - run: pnpm build

@@ -1,6 +1,6 @@
 {
 	"description": "NestJS API (ESM) with TypeScript and Vitest",
-	"create": "npx -y @nestjs/cli@latest new {name} --package-manager npm --strict",
+	"create": "pnpm dlx @nestjs/cli@latest new {name} --package-manager pnpm --strict",
 	"removeFiles": [".oxlintrc.json"],
 	"removeDependencies": ["oxlint", "oxlint-tsgolint"],
 	"replace": [{ "file": "test/app.e2e-spec.ts", "from": "./../src/", "to": "@/" }],
@@ -21,9 +21,9 @@
 			"format": "prettier --write .",
 			"format:check": "prettier --check .",
 			"typecheck": "tsc --noEmit",
-			"check": "npm run lint && npm run format:check && npm run typecheck",
-			"sync": "git switch main && git pull && node scripts/install-if-changed.mjs",
-			"sync:branch": "git fetch origin && git merge --no-commit origin/main && node scripts/install-if-changed.mjs"
+			"check": "pnpm lint && pnpm format:check && pnpm typecheck",
+			"sync": "git switch main && git pull && pnpm install",
+			"sync:branch": "git fetch origin && git merge --no-commit origin/main && pnpm install"
 		}
 	}
 }

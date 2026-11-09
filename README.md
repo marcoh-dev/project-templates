@@ -12,13 +12,14 @@ The templates don't contain whole projects. Each project is created with the off
 | `nextjs`     | `create-next-app` (App Router, Tailwind, React Compiler, `src/`) | Tailwind class sorting via Prettier plugin       |
 | `react-vite` | `create-vite` (react-ts)                                         | oxlint replaced with ESLint, Vitest added        |
 | `nest`       | `@nestjs/cli new` (ESM, Vitest)                                  | oxlint replaced with ESLint (type-checked rules) |
-| `fullstack`  | `nextjs` in `frontend/` + `nest` in `backend/` as npm workspaces | Postgres (Docker), TypeORM, GitHub Actions CI    |
+| `fullstack`  | `nextjs` in `frontend/` + `nest` in `backend/` as pnpm workspace | Postgres (Docker), TypeORM, GitHub Actions CI    |
 
-`fullstack` is set up like food-swap: one `npm install` and `npm run dev` at the root start the database, the backend (port 3000) and the frontend (port 5173). The generated project has its own README with all commands.
+`fullstack` is set up like food-swap: one `pnpm install` and `pnpm dev` at the root start the database, the backend (port 3000) and the frontend (port 5173). The generated project has its own README with all commands.
 
 ## Requirements
 
-- Node 24 (`nvm use 24`)
+- Node 24 (`fnm use 24`)
+- pnpm (`brew install pnpm`), see [pnpm](#pnpm)
 - GitHub CLI logged in (`gh auth status`), as long as this repo is private
 - Docker, for `fullstack`
 
@@ -63,17 +64,17 @@ git -C ~/project-templates pull
 Every project has these scripts:
 
 ```bash
-npm run lint          # ESLint
-npm run lint:fix      # ESLint with auto-fix
-npm run format        # Prettier, write
-npm run format:check  # Prettier, check only
-npm run typecheck     # tsc (Next.js generates its types first with next typegen)
-npm run check         # lint + format:check + typecheck
-npm run sync          # switch to main, pull, install dependencies if package-lock.json changed
-npm run sync:branch   # merge main into the current branch (without committing), install if needed
+pnpm lint          # ESLint
+pnpm lint:fix      # ESLint with auto-fix
+pnpm format        # Prettier, write
+pnpm format:check  # Prettier, check only
+pnpm typecheck     # tsc (Next.js generates its types first with next typegen)
+pnpm check         # lint + format:check + typecheck
+pnpm sync          # switch to main, pull, install dependencies
+pnpm sync:branch   # merge main into the current branch (without committing), install dependencies
 ```
 
-`sync` runs `npm ci` only when `package-lock.json` changed since the last install (`scripts/install-if-changed.mjs` keeps a hash in `node_modules`). In `fullstack` it also starts the database and runs pending migrations, and `npm run db:reset` recreates the local database from scratch. `sync:branch` prepares the merge but doesn't commit it, so you can check it first (`git merge --abort` undoes it). After a reinstall in VS Code, run **Developer: Reload Window** so the TypeScript and ESLint servers pick up the new `node_modules`.
+`sync` runs `pnpm install`, which finishes in milliseconds when `pnpm-lock.yaml` hasn't changed. In `fullstack` it also starts the database and runs pending migrations, and `pnpm db:reset` recreates the local database from scratch. `sync:branch` prepares the merge but doesn't commit it, so you can check it first (`git merge --abort` undoes it). After a reinstall in VS Code, run **Developer: Reload Window** so the TypeScript and ESLint servers pick up the new `node_modules`.
 
 Rules in every stack:
 
@@ -84,6 +85,7 @@ Rules in every stack:
 - TypeScript `strict` and `noUncheckedIndexedAccess`; `verbatimModuleSyntax` everywhere except `nest`
 - VS Code: Prettier formats on save, ESLint fixes on save, auto-imports prefer `@/…`
 - Node 24 via `.nvmrc` and `engines`
+- pnpm via `packageManager` and `devEngines` (npm is blocked)
 - Accessibility lint rules in `nextjs` and `react-vite` (see [Accessibility](#accessibility))
 - GitHub Actions CI (see below)
 
@@ -103,7 +105,7 @@ For React Native, set `accessibilityRole` and `accessibilityLabel` on icon-only 
 
 ## CI
 
-Every stack includes `.github/workflows/ci.yml`. It runs on pushes and pull requests to `main` with Node from `.nvmrc`, `npm ci`, and then:
+Every stack includes `.github/workflows/ci.yml`. It runs on pushes and pull requests to `main` with Node from `.nvmrc`, pnpm from `packageManager`, `pnpm install --frozen-lockfile`, and then:
 
 | Stack        | Steps                                                                   |
 | ------------ | ----------------------------------------------------------------------- |
@@ -132,7 +134,7 @@ rm .github/workflows/ci.yml
 
 ## What gets applied
 
-1. Files in `shared/` (`.prettierrc`, `.nvmrc`, `.vscode/`, `scripts/install-if-changed.mjs`)
+1. Files in `shared/` (`.prettierrc`, `.nvmrc`, `.vscode/`)
 2. Files in `templates/<stack>/files/` (overwrite `shared/` and generated files)
 3. `templates/<stack>/template.json`:
     - `create`: command that generates the project (`{name}` is replaced)
@@ -144,15 +146,39 @@ rm .github/workflows/ci.yml
     - `devDependencies`, `installCommand`: packages to install
     - `moveToDevDependencies`: packages the install command put into `dependencies`
     - `package`: merged into `package.json` (scripts, engines, …)
-4. `npm run lint:fix`, `npm run format`, `npm run check`
+4. `packageManager` and `devEngines` with the installed pnpm version
+5. `pnpm lint:fix`, `pnpm format`, `pnpm check`
+
+`apply.mjs` converts an npm project first: `pnpm import` turns `package-lock.json` into `pnpm-lock.yaml`, then `package-lock.json`, `node_modules` and the old `scripts/install-if-changed.mjs` are deleted.
 
 ## Version pins
 
-- `eslint@^9`: `eslint-plugin-import` (import sorting) doesn't support ESLint 10 yet
+- `eslint@^9`: `eslint-plugin-import` (import sorting) and `eslint-plugin-react` (in `eslint-config-expo`) don't support ESLint 10 yet. npm picked 9 because of their peer ranges, pnpm installs the latest version unless it's pinned
 - `typescript@~6.0` in `react-vite`: `typescript-eslint` doesn't support TypeScript 7 yet
 - No `verbatimModuleSyntax` in `nest`: NestJS dependency injection reads the types of decorated constructor parameters at runtime, so those imports must stay value imports
 
 Remove these pins when the tools catch up.
+
+## pnpm
+
+All stacks use pnpm. Its store keeps every package version once on disk and links it into each project's `node_modules`, instead of a full copy per project.
+
+- Install pnpm once with Homebrew, so it doesn't depend on the Node version. pnpm switches to the version in `packageManager` by itself.
+- `devEngines.packageManager` blocks `npm` and `npx` in the project (`EBADDEVENGINES`). Use `pnpm dlx` for one-off tools and `pnpm exec` for local ones.
+- `onFail` is `download`, not `error`: hosts like Vercel preinstall an older pnpm, which then downloads the pinned version instead of failing.
+- pnpm doesn't run install scripts of dependencies until they are allowed. When an install stops with `ERR_PNPM_IGNORED_BUILDS`, run `pnpm approve-builds` (or add the package under `allowBuilds` in `pnpm-workspace.yaml`) and run the command again. `create-next-app` already writes these decisions for `sharp` and `unrs-resolver`.
+- Settings live in `pnpm-workspace.yaml`, also in single-package projects. `.npmrc` is only for registry and auth.
+- `expo` uses pnpm's default (isolated) `node_modules`, which Metro supports since SDK 54.
+
+| npm                             | pnpm                                  |
+| ------------------------------- | ------------------------------------- |
+| `npm install`                   | `pnpm install`                        |
+| `npm ci`                        | `pnpm install --frozen-lockfile`      |
+| `npm install -D <pkg>`          | `pnpm add -D <pkg>`                   |
+| `npm run <script>`              | `pnpm <script>`                       |
+| `npx <tool>`                    | `pnpm dlx <tool>` / `pnpm exec <bin>` |
+| `npm run <script> -w backend`   | `pnpm --filter backend <script>`      |
+| `npm run <script> --workspaces` | `pnpm -r <script>`                    |
 
 ## Monorepos
 

@@ -1,6 +1,6 @@
 {
 	"description": "Next.js App Router with TypeScript, Tailwind, React Compiler and code in src/",
-	"create": "npx create-next-app@latest {name} --ts --tailwind --eslint --app --src-dir --react-compiler --import-alias \"@/*\" --use-npm --no-agent-feedback --yes",
+	"create": "pnpm create next-app@latest {name} --ts --tailwind --eslint --app --src-dir --react-compiler --import-alias \"@/*\" --use-pnpm --no-agent-feedback --yes",
 	"devDependencies": [
 		"prettier",
 		"eslint-config-prettier",
@@ -18,9 +18,9 @@
 			"format": "prettier --write .",
 			"format:check": "prettier --check .",
 			"typecheck": "next typegen && tsc --noEmit",
-			"check": "npm run lint && npm run format:check && npm run typecheck",
-			"sync": "git switch main && git pull && node scripts/install-if-changed.mjs",
-			"sync:branch": "git fetch origin && git merge --no-commit origin/main && node scripts/install-if-changed.mjs"
+			"check": "pnpm lint && pnpm format:check && pnpm typecheck",
+			"sync": "git switch main && git pull && pnpm install",
+			"sync:branch": "git fetch origin && git merge --no-commit origin/main && pnpm install"
 		}
 	}
 }

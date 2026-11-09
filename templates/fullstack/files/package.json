@@ -1,27 +1,23 @@
 {
 	"name": "PROJECT_NAME",
 	"private": true,
-	"workspaces": [
-		"backend",
-		"frontend"
-	],
 	"engines": {
 		"node": "24.x"
 	},
 	"scripts": {
-		"dev": "npm run db:up && concurrently -n backend,frontend -c blue,magenta \"npm run start:dev -w backend\" \"npm run dev -w frontend\"",
+		"dev": "pnpm db:up && concurrently -n backend,frontend -c blue,magenta \"pnpm --filter backend start:dev\" \"pnpm --filter frontend dev\"",
 		"db:up": "docker compose up -d --wait",
 		"db:down": "docker compose down",
-		"db:reset": "docker compose down -v && npm run db:up && npm run migration:run -w backend",
-		"lint": "npm run lint --workspaces",
-		"lint:fix": "npm run lint:fix --workspaces",
-		"format": "prettier --write . && npm run format --workspaces",
-		"format:check": "prettier --check . && npm run format:check --workspaces",
-		"typecheck": "npm run typecheck --workspaces",
-		"test": "npm run test --workspaces --if-present",
-		"build": "npm run build --workspaces",
-		"check": "npm run lint && npm run format:check && npm run typecheck",
-		"sync": "git switch main && git pull && node scripts/install-if-changed.mjs && npm run db:up && npm run migration:run -w backend",
-		"sync:branch": "git fetch origin && git merge --no-commit origin/main && node scripts/install-if-changed.mjs && npm run db:up && npm run migration:run -w backend"
+		"db:reset": "docker compose down -v && pnpm db:up && pnpm --filter backend migration:run",
+		"lint": "pnpm -r lint",
+		"lint:fix": "pnpm -r lint:fix",
+		"format": "prettier --write . && pnpm -r format",
+		"format:check": "prettier --check . && pnpm -r format:check",
+		"typecheck": "pnpm -r typecheck",
+		"test": "pnpm -r --if-present test",
+		"build": "pnpm -r build",
+		"check": "pnpm lint && pnpm format:check && pnpm typecheck",
+		"sync": "git switch main && git pull && pnpm install && pnpm db:up && pnpm --filter backend migration:run",
+		"sync:branch": "git fetch origin && git merge --no-commit origin/main && pnpm install && pnpm db:up && pnpm --filter backend migration:run"
 	}
 }
