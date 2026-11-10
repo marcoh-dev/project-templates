@@ -15,6 +15,7 @@
 			"format:check": "prettier --check .",
 			"typecheck": "tsc --noEmit",
 			"check": "pnpm lint && pnpm format:check && pnpm typecheck",
+			"doctor": "npm_config_force=true pnpm dlx expo-doctor",
 			"sync": "git switch main && git pull && pnpm install",
 			"sync:branch": "git fetch origin && git merge --no-commit origin/main && pnpm install"
 		}

@@ -169,6 +169,7 @@ All stacks use pnpm. Its store keeps every package version once on disk and link
 - pnpm doesn't run install scripts of dependencies until they are allowed. When an install stops with `ERR_PNPM_IGNORED_BUILDS`, run `pnpm approve-builds` (or add the package under `allowBuilds` in `pnpm-workspace.yaml`) and run the command again. `create-next-app` already writes these decisions for `sharp` and `unrs-resolver`.
 - Settings live in `pnpm-workspace.yaml`, also in single-package projects. `.npmrc` is only for registry and auth.
 - `expo` uses pnpm's default (isolated) `node_modules`, which Metro supports since SDK 54.
+- `expo-doctor` runs `npm explain` internally, which the npm block stops. Run it with `pnpm doctor`, which sets `npm_config_force=true` so npm only warns.
 
 | npm                             | pnpm                                  |
 | ------------------------------- | ------------------------------------- |
