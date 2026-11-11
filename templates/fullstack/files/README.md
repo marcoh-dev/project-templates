@@ -72,3 +72,7 @@ pnpm --filter backend migration:show
 ## CI
 
 `.github/workflows/ci.yml` runs `check`, the unit tests, the backend e2e tests against a Postgres service, and the build on every push and pull request to `main`.
+
+## Issues
+
+New issues use the user story template in `.github/ISSUE_TEMPLATE/user-story.md`: value proposition, description, acceptance criteria and tasks.
