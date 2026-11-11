@@ -132,6 +132,10 @@ rm .github/workflows/ci.yml
 
 `.github/` can be deleted too if there's nothing else in it.
 
+## Issue template
+
+`fullstack` includes `.github/ISSUE_TEMPLATE/user-story.md`, the user story format from food-swap (value proposition, description, acceptance criteria, tasks). GitHub offers it under **New issue**. `--no-ci` and the automatic skip inside an existing git repo leave out all of `.github/`, so the template too.
+
 ## What gets applied
 
 1. Files in `shared/` (`.prettierrc`, `.nvmrc`, `.vscode/`)
